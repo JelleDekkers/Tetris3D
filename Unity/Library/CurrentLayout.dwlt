@@ -43,7 +43,7 @@ MonoBehaviour:
     y: 0
     width: 1920
     height: 984
-  m_MinSize: {x: 950, y: 300}
+  m_MinSize: {x: 950, y: 542}
   m_MaxSize: {x: 10000, y: 10000}
 --- !u!114 &3
 MonoBehaviour:
@@ -109,7 +109,7 @@ MonoBehaviour:
   m_MinSize: {x: 787, y: 492}
   m_MaxSize: {x: 18008, y: 14042}
   vertical: 0
-  controlID: 130
+  controlID: 171
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -177,8 +177,8 @@ MonoBehaviour:
     y: 0
     width: 587
     height: 623
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
   m_ActualView: {fileID: 16}
   m_Panes:
   - {fileID: 16}
@@ -227,8 +227,8 @@ MonoBehaviour:
     y: 0
     width: 349
     height: 623
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 204, y: 221}
+  m_MaxSize: {x: 4004, y: 4021}
   m_ActualView: {fileID: 17}
   m_Panes:
   - {fileID: 17}
@@ -471,7 +471,7 @@ MonoBehaviour:
   m_Rotation:
     m_Target: {x: -0.6774542, y: 0.004185265, z: -0.0038543332, w: -0.73554295}
     speed: 2
-    m_Value: {x: -0.6774542, y: 0.004185265, z: -0.0038543332, w: -0.73554295}
+    m_Value: {x: -0.6774541, y: 0.004185265, z: -0.003854333, w: -0.7355429}
   m_Size:
     m_Target: 6.157885
     speed: 2
@@ -514,8 +514,8 @@ MonoBehaviour:
     height: 602
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 48a0ffff
-    m_LastClickedID: -24504
+    m_SelectedIDs: a6050000
+    m_LastClickedID: 0
     m_ExpandedIDs: e4fbffff00000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -677,20 +677,20 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets
+    - Assets/Scripts
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets
+  - Assets/Scripts
   m_LastFoldersGridSize: 16
   m_LastProjectPath: D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule
-    Dev\Tetris3D
+    Dev\Tetris3D\Unity
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: be240000
-    m_LastClickedID: 9406
-    m_ExpandedIDs: 00000000be240000ffffff7f
+    m_SelectedIDs: 0e250000
+    m_LastClickedID: 9486
+    m_ExpandedIDs: 00000000c0240000ffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -718,7 +718,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000be240000
+    m_ExpandedIDs: 00000000c0240000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -749,15 +749,15 @@ MonoBehaviour:
     m_ExpandedInstanceIDs: ce010000a203000064040000323a0000366800004e250000b62c0000a02d0000922e0000742300006c2800008639000062020000b00400002c000000bc0000000a2a0000ee04000006200000ec040000e4040000124901000c3d00001c40feff3ac4f6fff804000008e7f6ffccadf6ffe8430000aa370000220500007a050000300500002c050000f2040000fc04000048050000560500001a050000d853000096050000aecdfaff380500003c0500004a050000aa050000b4050000b8050000540500005e240000660500005c050000e00500006805000076050000d4050000e01c0000dc1c00005e05000064050000ce050000d04000006c0500006a05000018a1010096a40100ea0500006e0500000e2e0000fa0500007405000078050000c005000020080000f80500008e8cfcff420900000e060000220600005e0600007e050000880500001206000082050000288bfeff74d6faff80050000180600001c0600001a8cfeff26060000860500003a0600008a0500001e0b00008c05000092050000980500008e050000720b00006606000062060000620c0000ae06000026090000640600009a0500008c1d0000ec0d000044110000de0900001a0d000076090000d8100000ba1f000000000000f2280000909f0000b82e000032d2ffff421d00006c1e00006e1e00008224000058230000ba250000502500003e260000a828000078650000a2240000e2250000c6260000c2260000da260000de260000e6260000bc240000ba240000f22600001227000020280000d4170300f0050000163a0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
-      m_Name: BlockGroupTypes
-      m_OriginalName: BlockGroupTypes
+      m_Name: Scripts
+      m_OriginalName: Scripts
       m_EditFieldRect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 0
         height: 0
-      m_UserData: 9860
+      m_UserData: 9486
       m_IsWaitingForDelay: 0
       m_IsRenaming: 0
       m_OriginalEventType: 0
