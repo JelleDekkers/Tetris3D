@@ -1,0 +1,6 @@
+Technical Plan Tetris 3D van Jelle Dekkers
+
+Design patterns die geschikt zouden kunnen zijn voor mijn Tetrid 3d:
+Singleton, bijvoorbeeld in het geval van een soort Game Manager class waar er maar 1 van is maar wel in de scene moet staan.
+Observer pattern voor bijvoorbeeld audio fx die afspelen bij het roteren of bewegen van blokjes of bij het clearen van een layer.
+Command pattern lijkt me eventueel ook nog interessant om input keys makkelijk te kunnen veranderen maar misschien dat dit wel een beetje overkill wordt.
