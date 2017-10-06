@@ -35,17 +35,18 @@ public class Level : MonoBehaviour {
         LevelDrawer.Instance.Setup(Size, StartPos);
     }
 
-    public void MoveBlockGroup(BlockGroup group, Vector3 input) {
+    public void MoveBlockGroup(BlockGroup group, IntVector3 input) {
         for (int i = 0; i < group.Blocks.Length; i++) {
             Block block = group.Blocks[i];
-            IntVector3 newCoordinate = block.Coordinate + input.ToIntVector3();
+            IntVector3 newCoordinate = block.Coordinate + input;
             block.Coordinate = newCoordinate;
             Vector3 worldPos = new Vector3(newCoordinate.x + CubeSizeX / 2f, newCoordinate.y + CubeSizeY / 2f, newCoordinate.z + CubeSizeZ / 2f);
             block.gObj.transform.position = StartPos + worldPos;
+            block.gObj.name = newCoordinate.ToString();
         }
     }
 
-    public void RotateBlockGroup(BlockGroup group, int horizontal, int vertical) {
+    public void RotateBlockGroup(BlockGroup group, IntVector3 rotation) {
         for (int i = 0; i < group.Blocks.Length; i++) {
 
             Block block = group.Blocks[i];
@@ -53,10 +54,16 @@ public class Level : MonoBehaviour {
                 continue;
 
             IntVector3 difFromPivot = block.Coordinate - group.RotationPivotBlock.Coordinate;
-            IntVector3 rotatedFromPivot = new IntVector3(difFromPivot.z * horizontal, difFromPivot.y, difFromPivot.x * -horizontal);
-            IntVector3 newCoordinate = group.RotationPivotBlock.Coordinate + rotatedFromPivot;
+            IntVector3 rotationFromPivot = IntVector3.zero;
+            if (rotation.x != 0) 
+                rotationFromPivot = new IntVector3(difFromPivot.z * rotation.x, difFromPivot.y, difFromPivot.x * -rotation.x);
+            else if (rotation.y != 0)
+                rotationFromPivot = new IntVector3(difFromPivot.y * rotation.y, difFromPivot.x * -rotation.y, difFromPivot.z);
+            else if (rotation.z != 0)
+                rotationFromPivot = new IntVector3(difFromPivot.x, difFromPivot.z * -rotation.z, difFromPivot.y * rotation.z);
+            IntVector3 newCoordinate = group.RotationPivotBlock.Coordinate + rotationFromPivot;
             block.Coordinate = newCoordinate;
-            Vector3 worldPos =  new Vector3(newCoordinate.x + CubeSizeX / 2f, newCoordinate.y + CubeSizeY / 2f, newCoordinate.z + CubeSizeZ / 2f);
+            Vector3 worldPos = new Vector3(newCoordinate.x + CubeSizeX / 2f, newCoordinate.y + CubeSizeY / 2f, newCoordinate.z + CubeSizeZ / 2f);
             block.gObj.transform.position = worldPos;
         }
     }
@@ -98,13 +105,14 @@ public class Level : MonoBehaviour {
     }
 
     public BlockGroup CreateNewBlockGroup() {
-        Block[] blocks = BlockGroupTypes.Type_O.Copy(); 
+        Block[] blocks = BlockGroupTypes.Type_L.Copy(); 
 
         for (int i = 0; i < blocks.Length; i++) {
             IntVector3 coordinate = GetSpawnCoordinate() + blocks[i].Coordinate;
             Vector3 worldCoordinate = new Vector3(coordinate.x + CubeSizeX / 2f, coordinate.y + CubeSizeY / 2f, coordinate.z + CubeSizeZ / 2f);
             Block block = new Block(coordinate);
             block.SetGameObject(GameObject.CreatePrimitive(PrimitiveType.Cube));
+            block.gObj.name = coordinate.ToString();
             block.Coordinate = coordinate;
             block.gObj.transform.localPosition = worldCoordinate;
             blocks[i] = block;

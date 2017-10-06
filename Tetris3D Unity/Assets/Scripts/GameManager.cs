@@ -19,25 +19,33 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Update() {
+        // movement:
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-            TryMoveBlockGroup(Vector3.left);
-        else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-            TryMoveBlockGroup(Vector3.forward);
-        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-            TryMoveBlockGroup(Vector3.right);
-        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-            TryMoveBlockGroup(Vector3.back);
-        else if (Input.GetKeyDown(KeyCode.Space))
-            TryMoveBlockGroup(Vector3.down);
-        else if (Input.GetKeyDown(KeyCode.Q))
-            TryRotate(-1, 0);
-        else if (Input.GetKeyDown(KeyCode.E))
-            TryRotate(1, 0);
-        else if (Input.GetKeyDown(KeyCode.X))
-            TryRotate(0, 1);
-        else if (Input.GetKeyDown(KeyCode.Z))
-            TryRotate(0, -1);
+            TryMoveBlockGroup(IntVector3.left);
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+            TryMoveBlockGroup(IntVector3.forward);
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+            TryMoveBlockGroup(IntVector3.right);
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+            TryMoveBlockGroup(IntVector3.back);
+        if (Input.GetKeyDown(KeyCode.Space))
+            TryMoveBlockGroup(IntVector3.down);
 
+        // rotation:
+        if (Input.GetKeyDown(KeyCode.Q))
+            TryRotate(IntVector3.left);
+        if (Input.GetKeyDown(KeyCode.E))
+            TryRotate(IntVector3.right);
+        if (Input.GetKeyDown(KeyCode.X))
+            TryRotate(IntVector3.up);
+        if (Input.GetKeyDown(KeyCode.Z))
+            TryRotate(IntVector3.down);
+        if (Input.GetKeyDown(KeyCode.F))
+            TryRotate(IntVector3.forward);
+        if (Input.GetKeyDown(KeyCode.G))
+            TryRotate(IntVector3.back);
+
+        return;
         if (timer < 0)
             MoveBlockDown();
         else
@@ -45,8 +53,8 @@ public class GameManager : MonoBehaviour {
     }
 
     private void MoveBlockDown() {
-        if(CanMove(Vector3.down))
-            currentLevel.MoveBlockGroup(currentBlockGroup, Vector3.down);
+        if(CanMove(IntVector3.down))
+            currentLevel.MoveBlockGroup(currentBlockGroup, IntVector3.down);
         else
             CreateNewBlockGroup();
         timer = timeBetweenHeightDecrease;
@@ -58,26 +66,26 @@ public class GameManager : MonoBehaviour {
         currentBlockGroup = currentLevel.CreateNewBlockGroup();
     }
 
-    private void TryMoveBlockGroup(Vector3 input) {
+    private void TryMoveBlockGroup(IntVector3 input) {
         if (CanMove(input))
             currentLevel.MoveBlockGroup(currentBlockGroup, input);
     }
 
-    private bool CanMove(Vector3 direction) {
+    private bool CanMove(IntVector3 direction) {
         for (int i = 0; i < currentBlockGroup.Blocks.Length; i++) {
-            IntVector3 newCoordinate = currentBlockGroup.Blocks[i].Coordinate + direction.ToIntVector3();
+            IntVector3 newCoordinate = currentBlockGroup.Blocks[i].Coordinate + direction;
             if (!currentLevel.Grid.CoordinateExistsInGrid(newCoordinate) || currentLevel.Grid.IsOccupied(newCoordinate))
                 return false;
         }
         return true;
     }
 
-    private void TryRotate(int horizontal, int vertical) {
-        if (CanRotate(horizontal, vertical))
-            currentLevel.RotateBlockGroup(currentBlockGroup, horizontal, vertical);
+    private void TryRotate(IntVector3 rotation) {
+        if (CanRotate(rotation))
+            currentLevel.RotateBlockGroup(currentBlockGroup, rotation);
     }
 
-    private bool CanRotate(int horizontal, int vertical) {
+    private bool CanRotate(IntVector3 rotation) {
         for (int i = 0; i < currentBlockGroup.Blocks.Length; i++) {
 
             Block block = currentBlockGroup.Blocks[i];
@@ -85,8 +93,14 @@ public class GameManager : MonoBehaviour {
                 continue;
 
             IntVector3 difFromPivot = block.Coordinate - currentBlockGroup.RotationPivotBlock.Coordinate;
-            IntVector3 rotatedFromPivot = new IntVector3(difFromPivot.z * horizontal, difFromPivot.y, difFromPivot.x * -horizontal);
-            IntVector3 newCoordinate = currentBlockGroup.RotationPivotBlock.Coordinate + rotatedFromPivot;
+            IntVector3 rotationFromPivot = IntVector3.zero;
+            if (rotation.x != 0)
+                rotationFromPivot = new IntVector3(difFromPivot.z * rotation.x, difFromPivot.y, difFromPivot.x * -rotation.x);
+            else if (rotation.y != 0)
+                rotationFromPivot = new IntVector3(difFromPivot.y * rotation.y, difFromPivot.x * -rotation.y, difFromPivot.z);
+            else if (rotation.z != 0)
+                rotationFromPivot = new IntVector3(difFromPivot.x, difFromPivot.z * -rotation.z, difFromPivot.y * rotation.z);
+            IntVector3 newCoordinate = currentBlockGroup.RotationPivotBlock.Coordinate + rotationFromPivot;
 
             if (!currentLevel.Grid.CoordinateExistsInGrid(newCoordinate) || currentLevel.Grid.IsOccupied(newCoordinate)) 
                 return false;
