@@ -15,13 +15,6 @@ public class LevelDrawer : MonoBehaviour {
     [SerializeField]
     private Material lineMat;
 
-    private IntVector3[,] floor;
-    private IntVector3[,] wallNorth;
-    private IntVector3[,] wallEast;
-    private IntVector3[,] wallSouth;
-    private IntVector3[,] wallWest;
-
-    private bool setupDone;
     private IntVector3 Size { get { return Level.Instance.Size; } }
     private Vector3 StartPos { get { return Level.Instance.StartPos; } }
     private Vector3 horizontalOppositeCorner;
@@ -34,13 +27,8 @@ public class LevelDrawer : MonoBehaviour {
     }
 
     private void Start() {
-        horizontalOppositeCorner = new Vector3(StartPos.x, StartPos.y, StartPos.z + Size.z * Level.Instance.CubeSizeZ);
-        verticalOppositeCorner = new Vector3(StartPos.x + Size.x * Level.Instance.CubeSizeX, StartPos.y, StartPos.z);
-    }
-
-    public void Setup(IntVector3 size, Vector3 startingPos) {
-        floor = new IntVector3[size.x, size.z];
-        setupDone = true;
+        horizontalOppositeCorner = new Vector3(StartPos.x, StartPos.y, StartPos.z + Size.z * Level.Instance.cubeSize.z);
+        verticalOppositeCorner = new Vector3(StartPos.x + Size.x * Level.Instance.cubeSize.x, StartPos.y, StartPos.z);
     }
 
     void DrawLevel() {
@@ -59,8 +47,8 @@ public class LevelDrawer : MonoBehaviour {
         Vector3 start;
         Vector3 end;
         for (int x = 0; x < Size.x + 1; x++) {
-            start = new Vector3(x * Level.Instance.CubeSizeX, 0, 0) + StartPos;
-            end = new Vector3(x * Level.Instance.CubeSizeX, 0, Size.z * Level.Instance.CubeSizeZ) + StartPos;
+            start = new Vector3(x * Level.Instance.cubeSize.x, 0, 0) + StartPos;
+            end = new Vector3(x * Level.Instance.cubeSize.x, 0, Size.z * Level.Instance.cubeSize.z) + StartPos;
             GL.PushMatrix();
             lineMat.SetPass(0);
             GL.Begin(GL.LINES);
@@ -72,8 +60,8 @@ public class LevelDrawer : MonoBehaviour {
 
         // vertical:
         for (int z = 0; z < Size.z + 1; z++) {
-            start = new Vector3(0, 0, z * Level.Instance.CubeSizeZ) + StartPos;
-            end = new Vector3(Size.x * Level.Instance.CubeSizeX, 0, z * Level.Instance.CubeSizeZ) + StartPos;
+            start = new Vector3(0, 0, z * Level.Instance.cubeSize.z) + StartPos;
+            end = new Vector3(Size.x * Level.Instance.cubeSize.x, 0, z * Level.Instance.cubeSize.z) + StartPos;
             GL.PushMatrix();
             lineMat.SetPass(0);
             GL.Begin(GL.LINES);
@@ -90,8 +78,8 @@ public class LevelDrawer : MonoBehaviour {
 
         // horizontal:
         for (int y = 1; y < Size.y + 1; y++) {
-            start = new Vector3(0, y * Level.Instance.CubeSizeY, 0) + startCorner;
-            end = new Vector3(0, y * Level.Instance.CubeSizeY, Size.z * Level.Instance.CubeSizeZ) + startCorner;
+            start = new Vector3(0, y * Level.Instance.cubeSize.y, 0) + startCorner;
+            end = new Vector3(0, y * Level.Instance.cubeSize.y, Size.z * Level.Instance.cubeSize.z) + startCorner;
             GL.PushMatrix();
             lineMat.SetPass(0);
             GL.Begin(GL.LINES);
@@ -103,8 +91,8 @@ public class LevelDrawer : MonoBehaviour {
 
         // vertical:
         for (int z = 0; z < Size.z; z++) {
-            start = new Vector3(0, 0, z * Level.Instance.CubeSizeZ) + startCorner;
-            end = new Vector3(0, Size.y * Level.Instance.CubeSizeY, z * Level.Instance.CubeSizeZ) + startCorner;
+            start = new Vector3(0, 0, z * Level.Instance.cubeSize.z) + startCorner;
+            end = new Vector3(0, Size.y * Level.Instance.cubeSize.y, z * Level.Instance.cubeSize.z) + startCorner;
             GL.PushMatrix();
             lineMat.SetPass(0);
             GL.Begin(GL.LINES);
@@ -121,8 +109,8 @@ public class LevelDrawer : MonoBehaviour {
 
         // horizontal:
         for (int y = 1; y < Size.y + 1; y++) {
-            start = new Vector3(0, y * Level.Instance.CubeSizeY, 0) + startCorner;
-            end = new Vector3(Size.x * Level.Instance.CubeSizeX, y * Level.Instance.CubeSizeY, 0) + startCorner;
+            start = new Vector3(0, y * Level.Instance.cubeSize.y, 0) + startCorner;
+            end = new Vector3(Size.x * Level.Instance.cubeSize.x, y * Level.Instance.cubeSize.y, 0) + startCorner;
             GL.PushMatrix();
             lineMat.SetPass(0);
             GL.Begin(GL.LINES);
@@ -134,8 +122,8 @@ public class LevelDrawer : MonoBehaviour {
 
         // vertical:
         for (int x = 0; x < Size.x + 1; x++) {
-            start = new Vector3(x * Level.Instance.CubeSizeX, 0, 0) + startCorner;
-            end = new Vector3(x * Level.Instance.CubeSizeX, Size.y * Level.Instance.CubeSizeY, 0) + startCorner;
+            start = new Vector3(x * Level.Instance.cubeSize.x, 0, 0) + startCorner;
+            end = new Vector3(x * Level.Instance.cubeSize.x, Size.y * Level.Instance.cubeSize.y, 0) + startCorner;
             GL.PushMatrix();
             lineMat.SetPass(0);
             GL.Begin(GL.LINES);

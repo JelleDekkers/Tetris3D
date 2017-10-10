@@ -7,9 +7,12 @@ public class GameManager : MonoBehaviour {
     private Level currentLevel;
     private BlockGroup currentBlockGroup;
     private float timer;
+    [SerializeField]
     private float timeBetweenHeightDecrease = 1.5f;
 
     public float score;
+
+    private bool gameOver;
 
     private void Start() {
         currentLevel = Level.Instance;
@@ -19,6 +22,9 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Update() {
+        if (gameOver)
+            return;
+
         // movement:
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
             TryMoveBlockGroup(IntVector3.left);
@@ -45,11 +51,14 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.G))
             TryRotate(IntVector3.back);
 
-        return;
         if (timer < 0)
             MoveBlockDown();
         else
             timer -= Time.deltaTime;
+    }
+
+    private void GameOver() {
+        print("Game Over!");
     }
 
     private void MoveBlockDown() {
@@ -63,7 +72,14 @@ public class GameManager : MonoBehaviour {
     private void CreateNewBlockGroup() {
         if (currentBlockGroup != null)
             currentLevel.StoreGroupInGrid(currentBlockGroup);
-        currentBlockGroup = currentLevel.CreateNewBlockGroup();
+        if (CanCreateNewBlockGroup())
+            currentBlockGroup = currentLevel.CreateNewBlockGroup();
+        else
+            GameOver();
+    }
+
+    private bool CanCreateNewBlockGroup() {
+        return !currentLevel.Grid.IsOccupied(currentLevel.GetSpawnCoordinate());
     }
 
     private void TryMoveBlockGroup(IntVector3 input) {

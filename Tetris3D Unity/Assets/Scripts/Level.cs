@@ -15,16 +15,23 @@ public class Level : MonoBehaviour {
 
     [SerializeField]
     private float pointsForClearingRow = 5;
+    [SerializeField]
+    private int rowsCleared;
+    [SerializeField]
+    private GameObject blockPrefab;
+    [SerializeField]
+    private Material outlineMat;
 
     [SerializeField]
     private IntVector3 size;
     public IntVector3 Size { get { return size; } }
     public Vector3 StartPos { get; private set; }
-    public int currentHeight = 0;
+    [SerializeField]
+    private Color[] rowColors;
 
-    public int CubeSizeX = 1;
-    public int CubeSizeY = 1;
-    public int CubeSizeZ = 1;
+    private int currentHeight = 0;
+
+    public Vector3 cubeSize = Vector3.one;
 
     public Block[,,] Grid { get; private set; }
 
@@ -32,7 +39,6 @@ public class Level : MonoBehaviour {
         instance = this;
         Grid = new Block[Size.x, Size.y, Size.z];
         StartPos = transform.position;
-        LevelDrawer.Instance.Setup(Size, StartPos);
     }
 
     public void MoveBlockGroup(BlockGroup group, IntVector3 input) {
@@ -40,7 +46,7 @@ public class Level : MonoBehaviour {
             Block block = group.Blocks[i];
             IntVector3 newCoordinate = block.Coordinate + input;
             block.Coordinate = newCoordinate;
-            Vector3 worldPos = new Vector3(newCoordinate.x + CubeSizeX / 2f, newCoordinate.y + CubeSizeY / 2f, newCoordinate.z + CubeSizeZ / 2f);
+            Vector3 worldPos = new Vector3(newCoordinate.x + cubeSize.x / 2f, newCoordinate.y + cubeSize.y / 2f, newCoordinate.z + cubeSize.z/ 2f);
             block.gObj.transform.position = StartPos + worldPos;
             block.gObj.name = newCoordinate.ToString();
         }
@@ -63,7 +69,7 @@ public class Level : MonoBehaviour {
                 rotationFromPivot = new IntVector3(difFromPivot.x, difFromPivot.z * -rotation.z, difFromPivot.y * rotation.z);
             IntVector3 newCoordinate = group.RotationPivotBlock.Coordinate + rotationFromPivot;
             block.Coordinate = newCoordinate;
-            Vector3 worldPos = new Vector3(newCoordinate.x + CubeSizeX / 2f, newCoordinate.y + CubeSizeY / 2f, newCoordinate.z + CubeSizeZ / 2f);
+            Vector3 worldPos = new Vector3(newCoordinate.x + cubeSize.x / 2f, newCoordinate.y + cubeSize.y / 2f, newCoordinate.z + cubeSize.z / 2f);
             block.gObj.transform.position = worldPos;
         }
     }
@@ -87,6 +93,8 @@ public class Level : MonoBehaviour {
         }
         MoveAllLayersDown();
         GetComponent<GameManager>().score += pointsForClearingRow;
+        rowsCleared++;
+
     }
 
     private void MoveAllLayersDown() {
@@ -105,14 +113,16 @@ public class Level : MonoBehaviour {
     }
 
     public BlockGroup CreateNewBlockGroup() {
-        Block[] blocks = BlockGroupTypes.Type_L.Copy(); 
+        Block[] blocks = BlockGroupTypes.Type_O.Copy(); 
 
         for (int i = 0; i < blocks.Length; i++) {
             IntVector3 coordinate = GetSpawnCoordinate() + blocks[i].Coordinate;
-            Vector3 worldCoordinate = new Vector3(coordinate.x + CubeSizeX / 2f, coordinate.y + CubeSizeY / 2f, coordinate.z + CubeSizeZ / 2f);
+            Vector3 worldCoordinate = new Vector3(coordinate.x + cubeSize.x / 2f, coordinate.y + cubeSize.y / 2f, coordinate.z + cubeSize.z / 2f);
             Block block = new Block(coordinate);
-            block.SetGameObject(GameObject.CreatePrimitive(PrimitiveType.Cube));
+            block.SetGameObject(Instantiate(blockPrefab));
             block.gObj.name = coordinate.ToString();
+            block.gObj.GetComponent<MeshRenderer>().enabled = false;
+            block.gObj.transform.localScale = new Vector3(cubeSize.x, cubeSize.y, cubeSize.z);
             block.Coordinate = coordinate;
             block.gObj.transform.localPosition = worldCoordinate;
             blocks[i] = block;
@@ -128,6 +138,9 @@ public class Level : MonoBehaviour {
             Grid[block.Coordinate.x, block.Coordinate.y, block.Coordinate.z] = block;
             if (rows < block.Coordinate.y)
                 rows = block.Coordinate.y;
+            Destroy(block.gObj.GetComponent<BoundingBoxOutline>());
+            block.gObj.GetComponent<MeshRenderer>().enabled = true;
+            block.gObj.GetComponent<MeshRenderer>().material.color = GetCorrespondingRowColor(block.Coordinate.y);
         }
 
         for(int i = 0; i < rows + 1; i++) {
@@ -138,7 +151,11 @@ public class Level : MonoBehaviour {
         currentHeight = rows + 1;
     }
 
-    private IntVector3 GetSpawnCoordinate() {
+    private Color GetCorrespondingRowColor(int height) {
+        return rowColors[(height + rowsCleared) % rowColors.Length];
+    }
+
+    public IntVector3 GetSpawnCoordinate() {
         IntVector3 coordinate = new IntVector3((int)((Size.x - 1) / 2), Size.y - 1, (int)((Size.z - 1) / 2));
         return coordinate;
     }
