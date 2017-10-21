@@ -11,12 +11,4 @@ public class BlockGroup {
         Blocks = blocks;
         RotationPivotBlock = blocks[0];
     } 
-
-    //public void OnStopped() {
-    //    blocks.transform.SetParent(transform);
-    //    Transform[] childs = GetComponentsInChildren<Transform>();
-    //    foreach(Transform t in childs) 
-    //        t.SetParent(transform.parent);
-    //    Destroy(gameObject);
-    //}
 }

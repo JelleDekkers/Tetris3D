@@ -32,9 +32,6 @@ public class LevelDrawer : MonoBehaviour {
     }
 
     void DrawLevel() {
-        //if (!setupDone)
-        //    return;
-
         DrawFloor();
         DrawWallVertical(StartPos);
         DrawWallVertical(verticalOppositeCorner); 

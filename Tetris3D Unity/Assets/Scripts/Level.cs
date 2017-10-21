@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 
 public class Level : MonoBehaviour {
@@ -13,32 +12,56 @@ public class Level : MonoBehaviour {
         }
     }
 
-    [SerializeField]
-    private float pointsForClearingRow = 5;
-    [SerializeField]
-    private int rowsCleared;
+    public Action OnLayerCleared;
+    public Action OnGroupLocked;
+    public Action OnHeightChanged;
+    public Action OnGroupMoved;
+    public Action OnGroupMovedFailed;
+    public Action OnGroupRotated;
+    public Action OnGroupRotatedFailed;
+
+    public Vector3 cubeSize = Vector3.one;
+    public IntVector3 Size { get { return size; } }
+    public Vector3 StartPos { get; private set; }
+    public Block[,,] Grid { get; private set; }
+    public int HighestLayer {
+        get {
+            return highestLayer;
+        }
+        private set {
+            highestLayer = value;
+            if(OnHeightChanged != null)
+                OnHeightChanged();
+        }
+    }
+
     [SerializeField]
     private GameObject blockPrefab;
     [SerializeField]
     private Material outlineMat;
-
     [SerializeField]
     private IntVector3 size;
-    public IntVector3 Size { get { return size; } }
-    public Vector3 StartPos { get; private set; }
     [SerializeField]
-    private Color[] rowColors;
+    private Color[] layerColors;
 
-    private int currentHeight = 0;
-
-    public Vector3 cubeSize = Vector3.one;
-
-    public Block[,,] Grid { get; private set; }
+    private int highestLayer;
 
     public void Init() {
         instance = this;
         Grid = new Block[Size.x, Size.y, Size.z];
         StartPos = transform.position;
+    }
+
+    public bool CanMove(BlockGroup group, IntVector3 direction) {
+        for (int i = 0; i < group.Blocks.Length; i++) {
+            IntVector3 newCoordinate = group.Blocks[i].Coordinate + direction;
+            if (!Grid.CoordinateExistsInGrid(newCoordinate) || Grid.IsOccupied(newCoordinate)) {
+                if (OnGroupMovedFailed != null)
+                    OnGroupMovedFailed();
+                return false;
+            }
+        }
+        return true;
     }
 
     public void MoveBlockGroup(BlockGroup group, IntVector3 input) {
@@ -50,6 +73,35 @@ public class Level : MonoBehaviour {
             block.gObj.transform.position = StartPos + worldPos;
             block.gObj.name = newCoordinate.ToString();
         }
+
+        if(OnGroupMoved != null)
+            OnGroupMoved();
+    }
+
+    public bool CanRotate(BlockGroup group, IntVector3 rotation) {
+        for (int i = 0; i < group.Blocks.Length; i++) {
+
+            Block block = group.Blocks[i];
+            if (block == group.RotationPivotBlock)
+                continue;
+
+            IntVector3 difFromPivot = block.Coordinate - group.RotationPivotBlock.Coordinate;
+            IntVector3 rotationFromPivot = IntVector3.zero;
+            if (rotation.x != 0)
+                rotationFromPivot = new IntVector3(difFromPivot.z * rotation.x, difFromPivot.y, difFromPivot.x * -rotation.x);
+            else if (rotation.y != 0)
+                rotationFromPivot = new IntVector3(difFromPivot.y * rotation.y, difFromPivot.x * -rotation.y, difFromPivot.z);
+            else if (rotation.z != 0)
+                rotationFromPivot = new IntVector3(difFromPivot.x, difFromPivot.z * -rotation.z, difFromPivot.y * rotation.z);
+            IntVector3 newCoordinate = group.RotationPivotBlock.Coordinate + rotationFromPivot;
+
+            if (!Grid.CoordinateExistsInGrid(newCoordinate) || Grid.IsOccupied(newCoordinate)) {
+                if (OnGroupRotatedFailed != null)
+                    OnGroupRotatedFailed();
+                return false;
+            }
+        }
+        return true;
     }
 
     public void RotateBlockGroup(BlockGroup group, IntVector3 rotation) {
@@ -72,9 +124,12 @@ public class Level : MonoBehaviour {
             Vector3 worldPos = new Vector3(newCoordinate.x + cubeSize.x / 2f, newCoordinate.y + cubeSize.y / 2f, newCoordinate.z + cubeSize.z / 2f);
             block.gObj.transform.position = worldPos;
         }
+
+        if (OnGroupRotated != null)
+            OnGroupRotated();
     }
 
-    public bool RowIsFull(int row) {
+    private bool LayerIsFull(int row) {
         for (int x = 0; x < Grid.GetLength(0); x++) {
             for (int z = 0; z < Grid.GetLength(2); z++) {
                 if (Grid[x, row, z] == null)
@@ -84,7 +139,7 @@ public class Level : MonoBehaviour {
         return true;
     }
 
-    public void ClearRow(int row) {
+    private void ClearLayer(int row) {
         for(int x = 0; x < Grid.GetLength(0); x++) {
             for(int z = 0; z < Grid.GetLength(2); z++) {
                 Destroy(Grid[x, row, z].gObj);
@@ -92,13 +147,13 @@ public class Level : MonoBehaviour {
             }
         }
         MoveAllLayersDown();
-        GetComponent<GameManager>().score += pointsForClearingRow;
-        rowsCleared++;
-
+        HighestLayer--;
+        if (OnLayerCleared != null)
+            OnLayerCleared();
     }
 
     private void MoveAllLayersDown() {
-        for(int y = 0; y < currentHeight + 1; y++) {
+        for(int y = 0; y < HighestLayer + 1; y++) {
             for(int x = 0; x < Size.x; x++) {
                 for (int z = 0; z < Size.z; z++) {
                     if(Grid[x, y, z] != null) {
@@ -109,11 +164,10 @@ public class Level : MonoBehaviour {
                 }
             }
         }
-        currentHeight--;
     }
 
     public BlockGroup CreateNewBlockGroup() {
-        Block[] blocks = BlockGroupTypes.Type_O.Copy(); 
+        Block[] blocks = BlockGroupTypes.GetRandom().Copy(); 
 
         for (int i = 0; i < blocks.Length; i++) {
             IntVector3 coordinate = GetSpawnCoordinate() + blocks[i].Coordinate;
@@ -132,27 +186,32 @@ public class Level : MonoBehaviour {
         return group;
     }
 
-    public void StoreGroupInGrid(BlockGroup group) {
-        int rows = 0;
+    public void LockGroup(BlockGroup group) {
+        int layer = 0;
         foreach (Block block in group.Blocks) {
             Grid[block.Coordinate.x, block.Coordinate.y, block.Coordinate.z] = block;
-            if (rows < block.Coordinate.y)
-                rows = block.Coordinate.y;
-            Destroy(block.gObj.GetComponent<BoundingBoxOutline>());
+            if (layer < block.Coordinate.y)
+                layer = block.Coordinate.y;
+            Destroy(block.gObj.GetComponent<BlockOutlineDrawer>());
             block.gObj.GetComponent<MeshRenderer>().enabled = true;
             block.gObj.GetComponent<MeshRenderer>().material.color = GetCorrespondingRowColor(block.Coordinate.y);
         }
 
-        for(int i = 0; i < rows + 1; i++) {
-            if (RowIsFull(i))
-                ClearRow(i);
+        for(int i = 0; i < layer + 1; i++) {
+            if (LayerIsFull(i)) {
+                ClearLayer(i);
+                return;
+            }
         }
 
-        currentHeight = rows + 1;
+        if (layer + 1 > highestLayer)
+            HighestLayer = layer + 1;
+        if (OnGroupLocked != null)
+            OnGroupLocked();
     }
 
-    private Color GetCorrespondingRowColor(int height) {
-        return rowColors[(height + rowsCleared) % rowColors.Length];
+    public Color GetCorrespondingRowColor(int height) {
+        return layerColors[(height + GameManager.Instance.LayersCleared) % layerColors.Length];
     }
 
     public IntVector3 GetSpawnCoordinate() {

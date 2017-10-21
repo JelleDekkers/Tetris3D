@@ -69,4 +69,12 @@ public struct IntVector3 {
     public static explicit operator UnityEngine.Vector3(IntVector3 v) {
         return new UnityEngine.Vector3(v.x, v.y, v.z);
     }
+
+    public override bool Equals(object obj) {
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode() {
+        return base.GetHashCode();
+    }
 }

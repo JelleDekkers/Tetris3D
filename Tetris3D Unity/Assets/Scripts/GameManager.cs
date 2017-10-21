@@ -1,30 +1,44 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
 
+    private static GameManager instance;
+    public static GameManager Instance { get { return instance; } }
+
+    public Action OnGroupLockedEvent;
+    public Action OnLayerClearedEvent;
+
+    public int LayersCleared { get; private set; }
+    public int BlocksCleared { get; private set; }
+    public int BlocksPlayed { get; private set; }
+    public float Score { get; private set; }
+
+    [SerializeField]
+    private float timeBetweenDrop = 1.5f;
+    [SerializeField]
+    private float dropTimeDecreasePerLayerCleared = 0.25f;
+    [SerializeField]
+    private float dropTimeMin = 0.2f;
+    [SerializeField]
+    private float pointsForClearingBlock = 5;
+
     private Level currentLevel;
     private BlockGroup currentBlockGroup;
-    private float timer;
-    [SerializeField]
-    private float timeBetweenHeightDecrease = 1.5f;
+    private float dropTimer;
 
-    public float score;
-
-    private bool gameOver;
-
-    private void Start() {
-        currentLevel = Level.Instance;
+    private void Awake() {
+        instance = this;
+        currentLevel = GetComponent<Level>();
         currentLevel.Init();
         CreateNewBlockGroup();
-        timer = timeBetweenHeightDecrease;
+        dropTimer = timeBetweenDrop;
+
+        currentLevel.OnLayerCleared += OnLayerCleared;
+        currentLevel.OnGroupLocked += OnGroupLocked;
     }
 
     private void Update() {
-        if (gameOver)
-            return;
-
         // movement:
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
             TryMoveBlockGroup(IntVector3.left);
@@ -38,89 +52,79 @@ public class GameManager : MonoBehaviour {
             TryMoveBlockGroup(IntVector3.down);
 
         // rotation:
-        if (Input.GetKeyDown(KeyCode.Q))
-            TryRotate(IntVector3.left);
         if (Input.GetKeyDown(KeyCode.E))
             TryRotate(IntVector3.right);
         if (Input.GetKeyDown(KeyCode.X))
             TryRotate(IntVector3.up);
-        if (Input.GetKeyDown(KeyCode.Z))
-            TryRotate(IntVector3.down);
         if (Input.GetKeyDown(KeyCode.F))
             TryRotate(IntVector3.forward);
-        if (Input.GetKeyDown(KeyCode.G))
-            TryRotate(IntVector3.back);
 
-        if (timer < 0)
-            MoveBlockDown();
+        if (dropTimer < 0)
+            DropBlockGroup();
         else
-            timer -= Time.deltaTime;
+            dropTimer -= Time.deltaTime;
     }
 
-    private void GameOver() {
-        print("Game Over!");
+    private void OnDestroy() {
+        currentLevel.OnLayerCleared -= OnLayerCleared;
+        currentLevel.OnGroupLocked -= OnGroupLocked;
     }
 
-    private void MoveBlockDown() {
-        if(CanMove(IntVector3.down))
+    private void DropBlockGroup() {
+        if(currentLevel.CanMove(currentBlockGroup, IntVector3.down))
             currentLevel.MoveBlockGroup(currentBlockGroup, IntVector3.down);
         else
             CreateNewBlockGroup();
-        timer = timeBetweenHeightDecrease;
-    }
-
-    private void CreateNewBlockGroup() {
-        if (currentBlockGroup != null)
-            currentLevel.StoreGroupInGrid(currentBlockGroup);
-        if (CanCreateNewBlockGroup())
-            currentBlockGroup = currentLevel.CreateNewBlockGroup();
-        else
-            GameOver();
+        dropTimer = timeBetweenDrop;
     }
 
     private bool CanCreateNewBlockGroup() {
         return !currentLevel.Grid.IsOccupied(currentLevel.GetSpawnCoordinate());
     }
 
+    private void CreateNewBlockGroup() {
+        if (currentBlockGroup != null)
+            currentLevel.LockGroup(currentBlockGroup);
+        currentBlockGroup = currentLevel.CreateNewBlockGroup();
+    }
+
     private void TryMoveBlockGroup(IntVector3 input) {
-        if (CanMove(input))
+        if (currentLevel.CanMove(currentBlockGroup, input))
             currentLevel.MoveBlockGroup(currentBlockGroup, input);
     }
 
-    private bool CanMove(IntVector3 direction) {
-        for (int i = 0; i < currentBlockGroup.Blocks.Length; i++) {
-            IntVector3 newCoordinate = currentBlockGroup.Blocks[i].Coordinate + direction;
-            if (!currentLevel.Grid.CoordinateExistsInGrid(newCoordinate) || currentLevel.Grid.IsOccupied(newCoordinate))
-                return false;
-        }
-        return true;
-    }
-
     private void TryRotate(IntVector3 rotation) {
-        if (CanRotate(rotation))
+        if (currentLevel.CanRotate(currentBlockGroup, rotation))
             currentLevel.RotateBlockGroup(currentBlockGroup, rotation);
     }
 
-    private bool CanRotate(IntVector3 rotation) {
-        for (int i = 0; i < currentBlockGroup.Blocks.Length; i++) {
+    private void OnLayerCleared() {
+        float blocksInLayer = currentLevel.Size.x * currentLevel.Size.z;
+        Score += blocksInLayer * pointsForClearingBlock;
+        LayersCleared++;
+        if (timeBetweenDrop > dropTimeMin)
+            timeBetweenDrop -= dropTimeDecreasePerLayerCleared;
+        OnLayerClearedEvent();
+        AudioManager.PlayAudioClip(AudioManager.Instance.layerClearedFx);
+    }
 
-            Block block = currentBlockGroup.Blocks[i];
-            if (block == currentBlockGroup.RotationPivotBlock)
-                continue;
+    private void OnGroupLocked() {
+        BlocksPlayed += currentBlockGroup.Blocks.Length;
 
-            IntVector3 difFromPivot = block.Coordinate - currentBlockGroup.RotationPivotBlock.Coordinate;
-            IntVector3 rotationFromPivot = IntVector3.zero;
-            if (rotation.x != 0)
-                rotationFromPivot = new IntVector3(difFromPivot.z * rotation.x, difFromPivot.y, difFromPivot.x * -rotation.x);
-            else if (rotation.y != 0)
-                rotationFromPivot = new IntVector3(difFromPivot.y * rotation.y, difFromPivot.x * -rotation.y, difFromPivot.z);
-            else if (rotation.z != 0)
-                rotationFromPivot = new IntVector3(difFromPivot.x, difFromPivot.z * -rotation.z, difFromPivot.y * rotation.z);
-            IntVector3 newCoordinate = currentBlockGroup.RotationPivotBlock.Coordinate + rotationFromPivot;
+        if (OnGroupLockedEvent != null)
+            OnGroupLockedEvent();
 
-            if (!currentLevel.Grid.CoordinateExistsInGrid(newCoordinate) || currentLevel.Grid.IsOccupied(newCoordinate)) 
-                return false;
+        if (currentLevel.HighestLayer == currentLevel.Size.y - 1) {
+            GameOver();
+            AudioManager.PlayAudioClip(AudioManager.Instance.gameOverFx);
+
+        } else {
+            AudioManager.PlayAudioClip(AudioManager.Instance.groupLockFx);
         }
-        return true;
+    }
+
+    private void GameOver() {
+        gameObject.SetActive(false);
+        AudioManager.PlayAudioClip(AudioManager.Instance.gameOverFx);
     }
 }
