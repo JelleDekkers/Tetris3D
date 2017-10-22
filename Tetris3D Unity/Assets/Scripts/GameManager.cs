@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour {
 
     public Action OnGroupLockedEvent;
     public Action OnLayerClearedEvent;
+    public Action OnGameOver;
 
     public int LayersCleared { get; private set; }
     public int BlocksCleared { get; private set; }
@@ -126,5 +127,7 @@ public class GameManager : MonoBehaviour {
     private void GameOver() {
         gameObject.SetActive(false);
         AudioManager.PlayAudioClip(AudioManager.Instance.gameOverFx);
+        if (OnGameOver != null)
+            OnGameOver();
     }
 }

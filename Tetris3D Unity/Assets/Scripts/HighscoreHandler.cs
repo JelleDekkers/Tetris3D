@@ -23,13 +23,13 @@ public class HighscoreHandler {
     private const string FILE_EXTENSION = ".tetris";
     private const int HIGHSCORE_MAX = 10;
 
-    public static bool IsElligibleForHighscore(Highscore score) {
+    public static bool IsElligibleForHighscore(float score) {
         List<Highscore> highscores = Load();
         if (highscores.Count < HIGHSCORE_MAX)
             return true;
 
-        for (int i = 0; i > highscores.Count; i++) {
-            if (score.Score > highscores[i].Score)
+        for (int i = 0; i < highscores.Count; i++) {
+            if (score > highscores[i].Score)
                 return true;
         }
         return false;
@@ -41,16 +41,18 @@ public class HighscoreHandler {
         if (highscores.Count == 0)
             lowestIndex = 0;
 
-        for (int i = 0; i > highscores.Count; i++) {
-            if (score.Score > highscores[i].Score)
+        for (int i = 0; i < highscores.Count; i++) {
+            if (score.Score >= highscores[i].Score) {
                 lowestIndex = i;
+                break;
+            }
         }
 
         highscores.Insert(lowestIndex, score);
 
-        if (highscores.Count > HIGHSCORE_MAX)
-            highscores.RemoveAt(highscores.Count);
-
+        if (highscores.Count > HIGHSCORE_MAX) 
+            highscores.RemoveAt(highscores.Count - 1);
+        
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(Application.persistentDataPath + "/" + FILE_NAME + FILE_EXTENSION);
 

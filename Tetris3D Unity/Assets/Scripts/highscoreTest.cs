@@ -18,7 +18,7 @@ public class highscoreTest : MonoBehaviour {
 
     void Save() {
         Highscore score = new Highscore(playerName, playerScore);
-        if (HighscoreHandler.IsElligibleForHighscore(score))
+        if (HighscoreHandler.IsElligibleForHighscore(playerScore))
             HighscoreHandler.Save(score);
     }
 
