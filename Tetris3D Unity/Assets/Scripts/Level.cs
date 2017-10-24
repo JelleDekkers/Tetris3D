@@ -12,7 +12,7 @@ public class Level : MonoBehaviour {
         }
     }
 
-    public Action OnLayerCleared;
+    public Action<int> onRowCleared;
     public Action OnGroupLocked;
     public Action OnHeightChanged;
     public Action OnGroupMoved;
@@ -24,12 +24,12 @@ public class Level : MonoBehaviour {
     public IntVector3 Size { get { return size; } }
     public Vector3 StartPos { get; private set; }
     public Block[,,] Grid { get; private set; }
-    public int HighestLayer {
+    public int HighestRow {
         get {
-            return highestLayer;
+            return highestRow;
         }
         private set {
-            highestLayer = value;
+            highestRow = value;
             if(OnHeightChanged != null)
                 OnHeightChanged();
         }
@@ -44,7 +44,7 @@ public class Level : MonoBehaviour {
     [SerializeField]
     private Color[] layerColors;
 
-    private int highestLayer;
+    private int highestRow;
 
     public void Init() {
         instance = this;
@@ -129,7 +129,7 @@ public class Level : MonoBehaviour {
             OnGroupRotated();
     }
 
-    private bool LayerIsFull(int row) {
+    private bool RowIsFull(int row) {
         for (int x = 0; x < Grid.GetLength(0); x++) {
             for (int z = 0; z < Grid.GetLength(2); z++) {
                 if (Grid[x, row, z] == null)
@@ -139,21 +139,21 @@ public class Level : MonoBehaviour {
         return true;
     }
 
-    private void ClearLayer(int row) {
+    private void ClearRow(int row) {
         for(int x = 0; x < Grid.GetLength(0); x++) {
             for(int z = 0; z < Grid.GetLength(2); z++) {
                 Destroy(Grid[x, row, z].gObj);
                 Grid[x, row, z] = null;
             }
         }
-        MoveAllLayersDown();
-        HighestLayer--;
-        if (OnLayerCleared != null)
-            OnLayerCleared();
+        MoveRowsDown(row);
+        HighestRow--;
+        if (onRowCleared != null)
+            onRowCleared(row);
     }
 
-    private void MoveAllLayersDown() {
-        for(int y = 0; y < HighestLayer + 1; y++) {
+    private void MoveRowsDown(int fromRowNr) {
+        for(int y = fromRowNr; y < HighestRow + 1; y++) {
             for(int x = 0; x < Size.x; x++) {
                 for (int z = 0; z < Size.z; z++) {
                     if(Grid[x, y, z] != null) {
@@ -187,31 +187,31 @@ public class Level : MonoBehaviour {
     }
 
     public void LockGroup(BlockGroup group) {
-        int layer = 0;
+        int row = 0;
         foreach (Block block in group.Blocks) {
             Grid[block.Coordinate.x, block.Coordinate.y, block.Coordinate.z] = block;
-            if (layer < block.Coordinate.y)
-                layer = block.Coordinate.y;
+            if (row < block.Coordinate.y)
+                row = block.Coordinate.y;
             Destroy(block.gObj.GetComponent<BlockOutlineDrawer>());
             block.gObj.GetComponent<MeshRenderer>().enabled = true;
             block.gObj.GetComponent<MeshRenderer>().material.color = GetCorrespondingRowColor(block.Coordinate.y);
         }
 
-        for(int i = 0; i < layer + 1; i++) {
-            if (LayerIsFull(i)) {
-                ClearLayer(i);
+        for(int i = 0; i < row + 1; i++) {
+            if (RowIsFull(i)) {
+                ClearRow(i);
                 return;
             }
         }
 
-        if (layer + 1 > highestLayer)
-            HighestLayer = layer + 1;
+        if (row + 1 > highestRow)
+            HighestRow = row + 1;
         if (OnGroupLocked != null)
             OnGroupLocked();
     }
 
     public Color GetCorrespondingRowColor(int height) {
-        return layerColors[(height + GameManager.Instance.LayersCleared) % layerColors.Length];
+        return layerColors[(height + GameManager.Instance.rowsCleared) % layerColors.Length];
     }
 
     public IntVector3 GetSpawnCoordinate() {

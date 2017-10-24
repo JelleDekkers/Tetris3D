@@ -7,10 +7,10 @@ public class GameManager : MonoBehaviour {
     public static GameManager Instance { get { return instance; } }
 
     public Action OnGroupLockedEvent;
-    public Action OnLayerClearedEvent;
+    public Action<int> OnRowClearedEvent;
     public Action OnGameOver;
 
-    public int LayersCleared { get; private set; }
+    public int rowsCleared { get; private set; }
     public int BlocksCleared { get; private set; }
     public int BlocksPlayed { get; private set; }
     public float Score { get; private set; }
@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private float timeBetweenDrop = 1.5f;
     [SerializeField]
-    private float dropTimeDecreasePerLayerCleared = 0.25f;
+    private float dropTimeDecreasePerRowCleared = 0.25f;
     [SerializeField]
     private float dropTimeMin = 0.2f;
     [SerializeField]
@@ -35,8 +35,9 @@ public class GameManager : MonoBehaviour {
         CreateNewBlockGroup();
         dropTimer = timeBetweenDrop;
 
-        currentLevel.OnLayerCleared += OnLayerCleared;
+        currentLevel.onRowCleared += OnRowCleared;
         currentLevel.OnGroupLocked += OnGroupLocked;
+        GameMenu.Instance.OnPauseButtonPressed += PauseGame;
     }
 
     private void Update() {
@@ -67,8 +68,10 @@ public class GameManager : MonoBehaviour {
     }
 
     private void OnDestroy() {
-        currentLevel.OnLayerCleared -= OnLayerCleared;
+        currentLevel.onRowCleared -= OnRowCleared;
         currentLevel.OnGroupLocked -= OnGroupLocked;
+        if(GameMenu.Instance != null)
+            GameMenu.Instance.OnPauseButtonPressed -= PauseGame;
     }
 
     private void DropBlockGroup() {
@@ -99,14 +102,15 @@ public class GameManager : MonoBehaviour {
             currentLevel.RotateBlockGroup(currentBlockGroup, rotation);
     }
 
-    private void OnLayerCleared() {
-        float blocksInLayer = currentLevel.Size.x * currentLevel.Size.z;
-        Score += blocksInLayer * pointsForClearingBlock;
-        LayersCleared++;
+    private void OnRowCleared(int rowNr) {
+        float blocksInRow = currentLevel.Size.x * currentLevel.Size.z;
+        Score += blocksInRow * pointsForClearingBlock;
+        rowsCleared++;
         if (timeBetweenDrop > dropTimeMin)
-            timeBetweenDrop -= dropTimeDecreasePerLayerCleared;
-        OnLayerClearedEvent();
-        AudioManager.PlayAudioClip(AudioManager.Instance.layerClearedFx);
+            timeBetweenDrop -= dropTimeDecreasePerRowCleared;
+        if(OnRowClearedEvent != null)
+            OnRowClearedEvent(rowNr);
+        AudioManager.PlayAudioClip(AudioManager.Instance.rowClearedFx);
     }
 
     private void OnGroupLocked() {
@@ -115,7 +119,7 @@ public class GameManager : MonoBehaviour {
         if (OnGroupLockedEvent != null)
             OnGroupLockedEvent();
 
-        if (currentLevel.HighestLayer == currentLevel.Size.y - 1) {
+        if (currentLevel.HighestRow == currentLevel.Size.y - 1) {
             GameOver();
             AudioManager.PlayAudioClip(AudioManager.Instance.gameOverFx);
 
@@ -129,5 +133,11 @@ public class GameManager : MonoBehaviour {
         AudioManager.PlayAudioClip(AudioManager.Instance.gameOverFx);
         if (OnGameOver != null)
             OnGameOver();
+        GameMenu.Instance.OnPauseButtonPressed -= PauseGame;
+    }
+
+    private void PauseGame(bool pause) {
+        GameMenu.Instance.ShowPauseMenu(pause);
+        this.enabled = !pause;
     }
 }

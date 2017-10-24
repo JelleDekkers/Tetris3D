@@ -17,7 +17,7 @@ namespace UI {
 
         private void Start() {
             GameManager.Instance.OnGroupLockedEvent += UpdateCubesPlayed;
-            GameManager.Instance.OnLayerClearedEvent += UpdateScore;
+            GameManager.Instance.OnRowClearedEvent += UpdateScore;
             pitSize.text = Level.Instance.Size.x + " x " + Level.Instance.Size.y + " x " + Level.Instance.Size.z;
         }
 
@@ -29,7 +29,7 @@ namespace UI {
             cubesPlayed.text = GameManager.Instance.BlocksPlayed.ToString();
         }
 
-        private void UpdateScore() {
+        private void UpdateScore(int fromRow) {
             score.text = GameManager.Instance.Score.ToString();
         }
     }

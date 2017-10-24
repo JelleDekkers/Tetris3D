@@ -7,7 +7,7 @@ public class AudioManager : MonoBehaviour {
     private static AudioManager instance;
     public static AudioManager Instance { get { return instance; } }
 
-    public AudioClip layerClearedFx;
+    public AudioClip rowClearedFx;
     public AudioClip gameOverFx;
     public AudioClip groupLockFx;
 

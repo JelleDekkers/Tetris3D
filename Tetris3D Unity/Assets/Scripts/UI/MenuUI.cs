@@ -24,5 +24,9 @@ namespace UI {
             menu.SetActive(true);
             highscores.SetActive(false);
         }
+
+        public void QuitGame() {
+            Application.Quit();
+        }
     }
 }

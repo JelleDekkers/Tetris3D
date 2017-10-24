@@ -12,33 +12,34 @@ namespace UI {
         [SerializeField]
         private GameObject layerImagePrefab;
 
-        private int curLayers;
+        private int curRowIndex;
 
         private void Start() {
             Level.Instance.OnHeightChanged += UpdateGrid;
         }
 
         private void OnDestroy() {
-            Level.Instance.OnHeightChanged -= UpdateGrid;
+            if(Level.Instance != null)
+                Level.Instance.OnHeightChanged -= UpdateGrid;
         }
 
         private void UpdateGrid() {
-             if (Level.Instance.HighestLayer > curLayers)
+             if (Level.Instance.HighestRow > curRowIndex)
                 AddImageLayerToGrid();
-            else if (Level.Instance.HighestLayer < curLayers)
+            else if (Level.Instance.HighestRow < curRowIndex)
                 RemoveImageLayerFromGrid();
         }
 
         private void AddImageLayerToGrid() {
             GameObject layer = Instantiate(layerImagePrefab, grid.transform);
-            layer.GetComponent<Image>().color = Level.Instance.GetCorrespondingRowColor(Level.Instance.HighestLayer - 1);
-            curLayers++;
+            layer.GetComponent<Image>().color = Level.Instance.GetCorrespondingRowColor(Level.Instance.HighestRow - 1);
+            curRowIndex++;
         }
 
         private void RemoveImageLayerFromGrid() {
             if (grid.transform.childCount > 0)
                 Destroy(grid.transform.GetChild(0).gameObject);
-            curLayers--;
+            curRowIndex--;
         }
     }
 }
