@@ -81,4 +81,13 @@ public class HighscoreHandler {
             file.Close();
         }
     }
+
+    public static void RemoveIndex(int index) {
+        List<Highscore> highscores = Load();
+        Clear();
+        highscores.RemoveAt(index);
+        foreach (Highscore h in highscores) {
+            Save(h);
+        }
+    }
 }

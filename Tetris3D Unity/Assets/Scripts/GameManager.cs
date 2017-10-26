@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour {
     public Action<int> OnRowClearedEvent;
     public Action OnGameOver;
 
-    public int rowsCleared { get; private set; }
+    public int RrowsCleared { get; private set; }
     public int BlocksCleared { get; private set; }
     public int BlocksPlayed { get; private set; }
     public float Score { get; private set; }
@@ -105,7 +105,7 @@ public class GameManager : MonoBehaviour {
     private void OnRowCleared(int rowNr) {
         float blocksInRow = currentLevel.Size.x * currentLevel.Size.z;
         Score += blocksInRow * pointsForClearingBlock;
-        rowsCleared++;
+        RrowsCleared++;
         if (timeBetweenDrop > dropTimeMin)
             timeBetweenDrop -= dropTimeDecreasePerRowCleared;
         if(OnRowClearedEvent != null)
