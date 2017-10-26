@@ -1,0 +1,44 @@
+Initialize engine version: 5.6.1f1 (2860b30f0b54)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce 930M (ID=0x1346)
+    Vendor:   NVIDIA
+    VRAM:     2020 MB
+    Driver:   23.21.13.8800
+Begin MonoManager ReloadAssembly
+Platform assembly: D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+- Completed reload, in  0.032 seconds
+Platform assembly: D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: D:\Users\Jelle Dekkers\Documents\School\HKU\Jaar 2\KernModule Dev\Tetris3D\Build\BlockOut_Data\Managed\System.dll (this message is harmless)
+desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 4.441283 ms
+Setting up 2 worker threads for Enlighten.
+  Thread -> id: 2700 -> priority: 1 
+  Thread -> id: 2824 -> priority: 1 
+Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 4.999506 ms
+
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 744.
+Total: 0.758123 ms (FindLiveObjects: 0.053728 ms CreateObjectMapping: 0.028839 ms MarkObjects: 0.453135 ms  DeleteObjects: 0.222024 ms)
+
+saved to C:/Users/Jelle Dekkers/AppData/LocalLow/DefaultCompany/Tetris3D/
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/DebugBindings.gen.cpp Line: 51)
+
+Unloading 2 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 2.442666 ms
+
+Unloading 339 unused Assets to reduce memory usage. Loaded Objects now: 573.
+Total: 7.292444 ms (FindLiveObjects: 0.291555 ms CreateObjectMapping: 0.288790 ms MarkObjects: 2.531950 ms  DeleteObjects: 4.176592 ms)
+
