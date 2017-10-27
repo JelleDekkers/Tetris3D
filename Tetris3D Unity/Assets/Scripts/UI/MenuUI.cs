@@ -12,7 +12,7 @@ namespace UI {
         private GameObject highscores;
 
         public void StartGame() {
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(Scenes.GAME_SCENE);
         }
 
         public void ShowHighScore() {

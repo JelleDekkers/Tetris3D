@@ -70,7 +70,7 @@ public class GameMenu : MonoBehaviour {
     }
         
     public void ToMenu() {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(Scenes.MENU_SCENE);
     }
 
     public void Replay() {
